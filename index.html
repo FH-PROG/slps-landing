@@ -86,10 +86,10 @@
       </a>
       <nav class="hidden md:flex items-center gap-7 text-sm text-slate-300">
         <a href="#how" class="hover:text-white transition">How it works</a>
-        <a href="#breakdown" class="hover:text-white transition">Breakdown</a>
+        <!-- <a href="#breakdown" class="hover:text-white transition">Breakdown</a> -->
         <a href="#performance" class="hover:text-white transition">Performance</a>
         <a href="#why" class="hover:text-white transition">Why it matters</a>
-        <a href="#trust" class="hover:text-white transition">Engineering</a>
+        <!-- <a href="#trust" class="hover:text-white transition">Engineering</a> -->
       </nav>
       <a href="#quote" class="cta-pill text-sm font-medium px-4 py-2 rounded-xl">
         <span>Request a Quote</span>
@@ -168,6 +168,44 @@
   </div>
 </section>
 
+<!-- =============== WHY IT MATTERS =============== -->
+<section id="why" class="relative py-32 sm:py-40 overflow-hidden">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="max-w-2xl mb-16" data-reveal>
+      <p class="eyebrow">05 · Stakes</p>
+      <h2 class="section-title">One bad storm doesn’t stay one bad storm.</h2>
+      <p class="mt-5 text-slate-300/85 text-lg leading-relaxed">A single uncontrolled discharge cascades into bearing damage, sensor faults, weeks of crane time and lost MWh. SLPS breaks the chain at step one.</p>
+    </div>
+
+    <ol class="cascade-grid">
+      <li data-reveal class="cascade-card">
+        <div class="cascade-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>
+        <div class="cascade-step">01 · Strike</div>
+        <h3>Uncontrolled discharge</h3>
+        <p>Air-gap spark fires randomly across rotating joints. Hundreds of micro-events per season.</p>
+      </li>
+      <li data-reveal class="cascade-card">
+        <div class="cascade-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+        <div class="cascade-step">02 · Hours later</div>
+        <h3>Nuisance trip</h3>
+        <p>Static interference triggers 2106 / 2118 alarms. Turbine curtails. SCADA queues a service ticket.</p>
+      </li>
+      <li data-reveal class="cascade-card">
+        <div class="cascade-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg></div>
+        <div class="cascade-step">03 · Days later</div>
+        <h3>Component damage</h3>
+        <p>Bearing currents pit raceways. Pitch motors degrade. Generator slip rings burn.</p>
+      </li>
+      <li data-reveal class="cascade-card cascade-card--solved">
+        <div class="cascade-icon text-volt-400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 13 4 4L19 7"/></svg></div>
+        <div class="cascade-step text-volt-400">SLPS · Day zero</div>
+        <h3>Chain broken</h3>
+        <p>Continuous brush contact dissipates the discharge before it can cascade. Turbine stays online.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
 <!-- =============== HOW IT WORKS =============== -->
 <section id="how" class="relative py-32 sm:py-40">
   <div class="mx-auto max-w-7xl px-5 sm:px-8">
@@ -241,7 +279,7 @@
 </section>
 
 <!-- =============== EXPLODED VIEW =============== -->
-<section id="breakdown" class="relative py-32 sm:py-40 overflow-hidden">
+<section id="breakdown" class="relative py-32 sm:py-40 overflow-hidden" style="display: none">
   <div class="mx-auto max-w-7xl px-5 sm:px-8">
     <div class="max-w-2xl mb-12" data-reveal>
       <p class="eyebrow">03 · Anatomy</p>
@@ -350,46 +388,8 @@
   </div>
 </section>
 
-<!-- =============== WHY IT MATTERS =============== -->
-<section id="why" class="relative py-32 sm:py-40 overflow-hidden">
-  <div class="mx-auto max-w-7xl px-5 sm:px-8">
-    <div class="max-w-2xl mb-16" data-reveal>
-      <p class="eyebrow">05 · Stakes</p>
-      <h2 class="section-title">One bad storm doesn’t stay one bad storm.</h2>
-      <p class="mt-5 text-slate-300/85 text-lg leading-relaxed">A single uncontrolled discharge cascades into bearing damage, sensor faults, weeks of crane time and lost MWh. SLPS breaks the chain at step one.</p>
-    </div>
-
-    <ol class="cascade-grid">
-      <li data-reveal class="cascade-card">
-        <div class="cascade-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>
-        <div class="cascade-step">01 · Strike</div>
-        <h3>Uncontrolled discharge</h3>
-        <p>Air-gap spark fires randomly across rotating joints. Hundreds of micro-events per season.</p>
-      </li>
-      <li data-reveal class="cascade-card">
-        <div class="cascade-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-        <div class="cascade-step">02 · Hours later</div>
-        <h3>Nuisance trip</h3>
-        <p>Static interference triggers 2106 / 2118 alarms. Turbine curtails. SCADA queues a service ticket.</p>
-      </li>
-      <li data-reveal class="cascade-card">
-        <div class="cascade-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg></div>
-        <div class="cascade-step">03 · Days later</div>
-        <h3>Component damage</h3>
-        <p>Bearing currents pit raceways. Pitch motors degrade. Generator slip rings burn.</p>
-      </li>
-      <li data-reveal class="cascade-card cascade-card--solved">
-        <div class="cascade-icon text-volt-400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 13 4 4L19 7"/></svg></div>
-        <div class="cascade-step text-volt-400">SLPS · Day zero</div>
-        <h3>Chain broken</h3>
-        <p>Continuous brush contact dissipates the discharge before it can cascade. Turbine stays online.</p>
-      </li>
-    </ol>
-  </div>
-</section>
-
 <!-- =============== TRUST / ENGINEERING =============== -->
-<section id="trust" class="relative py-28 sm:py-36">
+<section id="trust" class="relative py-28 sm:py-36" style="display: none">
   <div class="mx-auto max-w-7xl px-5 sm:px-8">
     <div class="grid lg:grid-cols-12 gap-10 items-center">
       <div class="lg:col-span-6" data-reveal>
