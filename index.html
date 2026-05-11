@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="description" content="SLPS — Static & Lightning Protection System for Siemens Gamesa wind turbines. Continuous grounding. Zero spark gaps. +1.8% AEP." />
+<title>SLPS — Advanced Lightning Protection for Wind Turbines · AP Renewables</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          ink: { 950: '#04070a', 900: '#070b10', 800: '#0c1218', 700: '#121a22' },
+          volt: { 50: '#e8fff7', 100: '#c0ffe9', 300: '#5cf2c4', 400: '#2ae3a8', 500: '#10cf90', 600: '#0aa978', DEFAULT: '#10cf90' },
+          arc:  { 300: '#9ed8ff', 400: '#5fb8ff', 500: '#3a9bff' },
+          bolt: { 300: '#ffe27a', 400: '#ffc933', 500: '#ffb000' },
+        },
+        boxShadow: {
+          'glow-volt': '0 0 0 1px rgba(46,227,168,.25), 0 10px 40px -10px rgba(46,227,168,.45)',
+          'glow-bolt': '0 0 0 1px rgba(255,201,51,.3), 0 10px 60px -5px rgba(255,201,51,.45)',
+          'inset-line': 'inset 0 1px 0 rgba(255,255,255,.06), inset 0 -1px 0 rgba(0,0,0,.4)',
+        },
+        animation: {
+          'pulse-soft': 'pulseSoft 3.2s ease-in-out infinite',
+          'flicker': 'flicker 4s linear infinite',
+          'drift': 'drift 30s linear infinite',
+        },
+        keyframes: {
+          pulseSoft: { '0%,100%': { opacity: '.55' }, '50%': { opacity: '1' } },
+          flicker: { '0%,19%,21%,23%,25%,54%,56%,100%': { opacity: '.99' }, '20%,22%,24%,55%': { opacity: '.4' } },
+          drift: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+        },
+      },
+    },
+  };
+</script>
+
+<link rel="stylesheet" href="assets/css/styles.css" />
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+  }
+}
+</script>
+
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+
+<body class="bg-ink-950 text-slate-200 antialiased selection:bg-volt-400/40 selection:text-white">
+
+<!-- AMBIENT BACKDROP : sits behind every section -->
+<div aria-hidden="true" class="fixed inset-0 -z-50 pointer-events-none">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_-10%,rgba(16,207,144,.18),transparent_45%),radial-gradient(circle_at_85%_30%,rgba(95,184,255,.10),transparent_50%),radial-gradient(circle_at_50%_120%,rgba(16,207,144,.08),transparent_60%)]"></div>
+  <div class="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%22.9%22 numOctaves=%222%22 stitchTiles=%22stitch%22/><feColorMatrix values=%220 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/></svg>')] opacity-[.55] mix-blend-overlay"></div>
+  <div class="absolute inset-0 grid-overlay opacity-[.18]"></div>
+</div>
+
+<!-- MOUSE LIGHTNING ARC overlay canvas -->
+<canvas id="mouse-arc" aria-hidden="true" class="fixed inset-0 -z-40 pointer-events-none"></canvas>
+
+<!-- NAV -->
+<header class="fixed top-0 inset-x-0 z-50">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8 mt-3">
+    <div class="nav-shell flex items-center justify-between rounded-2xl px-4 sm:px-5 py-3">
+      <a href="#top" class="flex items-center gap-3 group">
+        <span class="relative inline-grid place-items-center w-9 h-9 rounded-xl bg-ink-800/80 ring-1 ring-white/10 overflow-hidden">
+          <span class="absolute inset-0 bg-gradient-to-br from-volt-400/30 to-arc-500/20"></span>
+          <svg viewBox="0 0 24 24" class="relative w-5 h-5 text-bolt-400 drop-shadow-[0_0_8px_rgba(255,201,51,.7)]" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+        </span>
+        <span class="font-semibold tracking-tight text-white">SLPS<span class="text-volt-400">.</span></span>
+        <span class="hidden sm:inline text-xs text-slate-400 font-mono">by AP Renewables</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-7 text-sm text-slate-300">
+        <a href="#how" class="hover:text-white transition">How it works</a>
+        <a href="#breakdown" class="hover:text-white transition">Breakdown</a>
+        <a href="#performance" class="hover:text-white transition">Performance</a>
+        <a href="#why" class="hover:text-white transition">Why it matters</a>
+        <a href="#trust" class="hover:text-white transition">Engineering</a>
+      </nav>
+      <a href="#quote" class="cta-pill text-sm font-medium px-4 py-2 rounded-xl">
+        <span>Request a Quote</span>
+        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- =============== HERO =============== -->
+<section id="top" class="relative min-h-[100svh] w-full overflow-hidden">
+  <!-- Three.js storm/turbine canvas -->
+  <canvas id="hero-canvas" class="absolute inset-0 w-full h-full"></canvas>
+
+  <!-- atmospheric overlays -->
+  <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-ink-950/30 to-ink-950"></div>
+  <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_50%_120%,rgba(4,7,10,.95),transparent_60%)]"></div>
+  <div id="lightning-flash" class="absolute inset-0 pointer-events-none"></div>
+
+  <!-- content -->
+  <div class="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 pt-40 sm:pt-44 pb-28 min-h-[100svh] flex flex-col justify-center">
+    <div class="max-w-3xl">
+      <div data-reveal class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 ring-1 ring-white/10 backdrop-blur text-xs font-mono text-slate-300 mb-6">
+        <span class="w-1.5 h-1.5 rounded-full bg-volt-400 animate-pulse"></span>
+        STATIC &amp; LIGHTNING PROTECTION SYSTEM · SIEMENS GAMESA
+      </div>
+
+      <h1 data-reveal class="hero-title text-balance font-semibold tracking-tight leading-[0.95] text-white">
+        Lightning hits.<br/>
+        <span class="grad-headline">Your turbine</span> doesn’t flinch.
+      </h1>
+
+      <p data-reveal class="mt-7 text-lg sm:text-xl text-slate-300/90 max-w-2xl leading-relaxed">
+        SLPS is AP Renewables’ retrofit static &amp; lightning protection kit for Siemens Gamesa fleets — a continuous, no-spark grounding path that keeps turbines online when the storm rolls in.
+      </p>
+
+      <div data-reveal class="mt-10 flex flex-wrap items-center gap-4">
+        <a href="#quote" class="cta-primary group">
+          <span class="relative z-10 flex items-center gap-2 font-semibold">Request a Quote
+            <svg viewBox="0 0 24 24" class="w-4 h-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+        <a href="#how" class="cta-ghost">
+          <span class="flex items-center gap-2">See how it works
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+          </span>
+        </a>
+      </div>
+
+      <!-- live data strip -->
+      <div data-reveal class="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-px rounded-2xl overflow-hidden bg-white/5 ring-1 ring-white/10 backdrop-blur-md max-w-3xl">
+        <div class="p-4 bg-ink-900/60">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">AEP uplift</div>
+          <div class="mt-1 text-2xl font-semibold text-volt-400">+1.8<span class="text-base text-volt-400/70">%</span></div>
+        </div>
+        <div class="p-4 bg-ink-900/60">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">Spark gaps</div>
+          <div class="mt-1 text-2xl font-semibold text-white">0</div>
+        </div>
+        <div class="p-4 bg-ink-900/60">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">Nuisance alarms</div>
+          <div class="mt-1 text-2xl font-semibold text-white">2106 / 2118</div>
+        </div>
+        <div class="p-4 bg-ink-900/60">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">Standard</div>
+          <div class="mt-1 text-2xl font-semibold text-white">IEC tested</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- scroll indicator -->
+    <div class="absolute left-1/2 -translate-x-1/2 bottom-6 flex flex-col items-center gap-2 text-[10px] font-mono uppercase tracking-[0.3em] text-slate-400/80">
+      <span>Scroll</span>
+      <span class="w-px h-10 bg-gradient-to-b from-volt-400 to-transparent"></span>
+    </div>
+  </div>
+</section>
+
+<!-- =============== HOW IT WORKS =============== -->
+<section id="how" class="relative py-32 sm:py-40">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="max-w-2xl mb-16" data-reveal>
+      <p class="eyebrow">02 · Mechanism</p>
+      <h2 class="section-title">A controlled path to ground.<br/>Not a hope and a prayer.</h2>
+      <p class="mt-5 text-slate-300/85 text-lg leading-relaxed">
+        OEM systems rely on an air-gap spark. SLPS replaces that gap with continuous brush contact — every microamp finds the path of least resistance, on purpose.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-8 items-stretch">
+      <!-- toggle + storyboard -->
+      <div class="lg:col-span-7 relative rounded-3xl overflow-hidden ring-1 ring-white/10 bg-ink-900/40 backdrop-blur">
+        <div class="absolute top-4 left-4 z-20 flex items-center gap-2 text-[10px] font-mono tracking-widest text-slate-400 uppercase">
+          <span class="w-1.5 h-1.5 rounded-full bg-volt-400 animate-pulse"></span>
+          Live Simulation
+        </div>
+        <div class="absolute top-4 right-4 z-20">
+          <div id="slps-toggle" class="toggle-shell" role="tablist" aria-label="SLPS simulation toggle">
+            <button data-mode="off" class="toggle-btn" aria-pressed="false">Without SLPS</button>
+            <button data-mode="on" class="toggle-btn is-active" aria-pressed="true">With SLPS</button>
+            <span class="toggle-thumb"></span>
+          </div>
+        </div>
+        <canvas id="how-canvas" class="block w-full aspect-[4/3] sm:aspect-[16/10]"></canvas>
+        <div class="absolute bottom-4 left-4 right-4 z-20 flex items-end justify-between text-xs font-mono text-slate-400">
+          <div id="how-readout" class="flex flex-col gap-0.5">
+            <span class="text-volt-400">CURRENT PATH · STABLE</span>
+            <span class="text-slate-500">0 spark events · grounding impedance: low</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="hud-chip">IEC 61400-24</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- step list -->
+      <ol class="lg:col-span-5 flex flex-col gap-3" id="how-steps">
+        <li data-step="1" class="step-card is-active">
+          <div class="step-num">01</div>
+          <div>
+            <h3>Strike</h3>
+            <p>A leader contacts the blade tip receptor. Up to 200 kA at the entry point.</p>
+          </div>
+        </li>
+        <li data-step="2" class="step-card">
+          <div class="step-num">02</div>
+          <div>
+            <h3>Capture</h3>
+            <p>Down-conductor carries current through the blade root into the hub.</p>
+          </div>
+        </li>
+        <li data-step="3" class="step-card">
+          <div class="step-num">03</div>
+          <div>
+            <h3>Bridge</h3>
+            <p>SLPS brushes replace the OEM air-gap with continuous low-impedance contact across the rotating joint.</p>
+          </div>
+        </li>
+        <li data-step="4" class="step-card">
+          <div class="step-num">04</div>
+          <div>
+            <h3>Discharge</h3>
+            <p>Energy is shunted down the tower to the foundation grid — silently, safely, every time.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- =============== EXPLODED VIEW =============== -->
+<section id="breakdown" class="relative py-32 sm:py-40 overflow-hidden">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="max-w-2xl mb-12" data-reveal>
+      <p class="eyebrow">03 · Anatomy</p>
+      <h2 class="section-title">Engineered, not improvised.</h2>
+      <p class="mt-5 text-slate-300/85 text-lg leading-relaxed">
+        Six layered components, hand-assembled and IEC-validated. Drag, scroll, or hover to take it apart.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-8 relative rounded-3xl overflow-hidden ring-1 ring-white/10 bg-gradient-to-br from-ink-900/70 to-ink-800/40 backdrop-blur">
+        <canvas id="exploded-canvas" class="block w-full aspect-square sm:aspect-[5/4]"></canvas>
+        <div class="absolute top-4 left-4 text-[10px] font-mono tracking-widest text-slate-400 uppercase flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-arc-400 animate-pulse"></span>
+          Component Breakdown
+        </div>
+        <div class="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-3">
+          <div class="text-xs text-slate-400 font-mono">Drag to rotate · Scroll explodes assembly</div>
+          <div class="flex items-center gap-2">
+            <button id="explode-reset" class="hud-chip hover:text-white transition">Reset view</button>
+            <button id="explode-toggle" class="hud-chip hover:text-white transition">Auto-explode</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-4 flex flex-col gap-3" id="part-list">
+        <!-- parts populated by JS for interactivity -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== PERFORMANCE =============== -->
+<section id="performance" class="relative py-32 sm:py-40">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="max-w-2xl mb-16" data-reveal>
+      <p class="eyebrow">04 · Numbers</p>
+      <h2 class="section-title">Performance you can measure on a SCADA chart.</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 sm:gap-6">
+      <div class="stat-card group" data-reveal>
+        <div class="stat-corner"></div>
+        <div class="text-[11px] font-mono uppercase tracking-widest text-slate-400">Annual Energy Production</div>
+        <div class="mt-3 flex items-end gap-1">
+          <span class="text-6xl sm:text-7xl font-semibold text-white tabular-nums" data-counter="1.8" data-decimals="1">0.0</span>
+          <span class="text-3xl text-volt-400 mb-2">%</span>
+          <span class="text-volt-400/80 mb-3 ml-1 text-sm">↑</span>
+        </div>
+        <p class="mt-2 text-slate-400 text-sm">Operator-reported uplift after retrofit, averaged across SG 2.0–3.X platforms.</p>
+        <div class="mt-6 h-24"><svg viewBox="0 0 240 80" class="w-full h-full"><path d="M0,65 Q40,55 60,52 T120,40 T200,22 T240,12" stroke="url(#gv)" stroke-width="2" fill="none" stroke-linecap="round"/><defs><linearGradient id="gv" x1="0" x2="1"><stop offset="0" stop-color="#10cf90" stop-opacity=".3"/><stop offset="1" stop-color="#10cf90"/></linearGradient></defs></svg></div>
+      </div>
+
+      <div class="stat-card group" data-reveal>
+        <div class="stat-corner"></div>
+        <div class="text-[11px] font-mono uppercase tracking-widest text-slate-400">Lightning-related downtime</div>
+        <div class="mt-3 flex items-end gap-1">
+          <span class="text-6xl sm:text-7xl font-semibold text-white tabular-nums" data-counter="62" data-decimals="0">0</span>
+          <span class="text-3xl text-arc-400 mb-2">%</span>
+          <span class="text-rose-300/80 mb-3 ml-1 text-sm">↓</span>
+        </div>
+        <p class="mt-2 text-slate-400 text-sm">Drop in 2106/2118 nuisance trips and storm-driven shutdowns post install.</p>
+        <div class="mt-6 h-24 flex items-end gap-1.5">
+          <span class="bar" style="--h:78%"></span><span class="bar" style="--h:64%"></span><span class="bar" style="--h:50%"></span><span class="bar" style="--h:42%"></span><span class="bar" style="--h:36%"></span><span class="bar" style="--h:30%"></span><span class="bar" style="--h:24%"></span><span class="bar" style="--h:18%"></span><span class="bar" style="--h:14%"></span><span class="bar bar-now" style="--h:10%"></span>
+        </div>
+      </div>
+
+      <div class="stat-card group" data-reveal>
+        <div class="stat-corner"></div>
+        <div class="text-[11px] font-mono uppercase tracking-widest text-slate-400">Component lifespan</div>
+        <div class="mt-3 flex items-end gap-1">
+          <span class="text-6xl sm:text-7xl font-semibold text-white tabular-nums" data-counter="2.4" data-decimals="1">0.0</span>
+          <span class="text-3xl text-bolt-400 mb-2">×</span>
+          <span class="text-bolt-400/80 mb-3 ml-1 text-sm">↑</span>
+        </div>
+        <p class="mt-2 text-slate-400 text-sm">Bearings, pitch motors and sensors inspected post-strike — fewer surprises.</p>
+        <div class="mt-6 h-24 relative">
+          <div class="absolute inset-0 grid grid-cols-12 gap-1">
+            <span class="dot"></span><span class="dot"></span><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AEP comparison strip -->
+    <div data-reveal class="mt-12 rounded-3xl ring-1 ring-white/10 bg-ink-900/40 backdrop-blur p-6 sm:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
+        <div>
+          <p class="eyebrow !mb-1">Fleet-wide AEP simulation</p>
+          <h3 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">12 turbines · 1 storm season</h3>
+        </div>
+        <div class="text-xs font-mono text-slate-400">drag the slider →</div>
+      </div>
+      <div id="aep-compare" class="aep-compare">
+        <div class="aep-track">
+          <div class="aep-fill aep-with"></div>
+          <div class="aep-fill aep-without"></div>
+          <div class="aep-handle" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-label="Compare with and without SLPS"></div>
+        </div>
+        <div class="grid grid-cols-2 mt-4 text-xs font-mono">
+          <div class="text-rose-300/90">Without SLPS · 41,200 MWh</div>
+          <div class="text-volt-400 text-right">With SLPS · 41,940 MWh (+740)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== WHY IT MATTERS =============== -->
+<section id="why" class="relative py-32 sm:py-40 overflow-hidden">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="max-w-2xl mb-16" data-reveal>
+      <p class="eyebrow">05 · Stakes</p>
+      <h2 class="section-title">One bad storm doesn’t stay one bad storm.</h2>
+      <p class="mt-5 text-slate-300/85 text-lg leading-relaxed">A single uncontrolled discharge cascades into bearing damage, sensor faults, weeks of crane time and lost MWh. SLPS breaks the chain at step one.</p>
+    </div>
+
+    <ol class="cascade-grid">
+      <li data-reveal class="cascade-card">
+        <div class="cascade-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>
+        <div class="cascade-step">01 · Strike</div>
+        <h3>Uncontrolled discharge</h3>
+        <p>Air-gap spark fires randomly across rotating joints. Hundreds of micro-events per season.</p>
+      </li>
+      <li data-reveal class="cascade-card">
+        <div class="cascade-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+        <div class="cascade-step">02 · Hours later</div>
+        <h3>Nuisance trip</h3>
+        <p>Static interference triggers 2106 / 2118 alarms. Turbine curtails. SCADA queues a service ticket.</p>
+      </li>
+      <li data-reveal class="cascade-card">
+        <div class="cascade-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg></div>
+        <div class="cascade-step">03 · Days later</div>
+        <h3>Component damage</h3>
+        <p>Bearing currents pit raceways. Pitch motors degrade. Generator slip rings burn.</p>
+      </li>
+      <li data-reveal class="cascade-card cascade-card--solved">
+        <div class="cascade-icon text-volt-400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 13 4 4L19 7"/></svg></div>
+        <div class="cascade-step text-volt-400">SLPS · Day zero</div>
+        <h3>Chain broken</h3>
+        <p>Continuous brush contact dissipates the discharge before it can cascade. Turbine stays online.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- =============== TRUST / ENGINEERING =============== -->
+<section id="trust" class="relative py-28 sm:py-36">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="grid lg:grid-cols-12 gap-10 items-center">
+      <div class="lg:col-span-6" data-reveal>
+        <p class="eyebrow">06 · Engineering credibility</p>
+        <h2 class="section-title">Field-tested. Standards-validated.<br/>Operator-trusted.</h2>
+        <p class="mt-5 text-slate-300/85 text-lg leading-relaxed">SLPS is a retrofit kit, not a black box. Every assembly is hand-built to the D0093 manufacturing procedure, tracked through the D0170 quality sheet, and validated against IEC 61400-24 lightning protection requirements.</p>
+
+        <div class="mt-8 grid sm:grid-cols-2 gap-3">
+          <div class="trust-pill"><span class="text-volt-400">●</span> IEC 61400-24 tested</div>
+          <div class="trust-pill"><span class="text-volt-400">●</span> Designed for SG 2.0–3.X</div>
+          <div class="trust-pill"><span class="text-volt-400">●</span> No OEM software lock-in</div>
+          <div class="trust-pill"><span class="text-volt-400">●</span> 100% serialized traceability</div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-6 grid grid-cols-2 gap-4" data-reveal>
+        <div class="spec-card">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">Conductor</div>
+          <div class="mt-1 text-2xl font-semibold text-white">Phosphor bronze<br/><span class="text-slate-400 text-base font-normal">+ 4-layer copper braid</span></div>
+        </div>
+        <div class="spec-card">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">Encapsulant</div>
+          <div class="mt-1 text-2xl font-semibold text-white">Smooth-On Task 7FR<br/><span class="text-slate-400 text-base font-normal">flame-retardant</span></div>
+        </div>
+        <div class="spec-card">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">Mounting</div>
+          <div class="mt-1 text-2xl font-semibold text-white">Bracket D0352<br/><span class="text-slate-400 text-base font-normal">stainless ziptie</span></div>
+        </div>
+        <div class="spec-card">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">Install time</div>
+          <div class="mt-1 text-2xl font-semibold text-white">~ 2 hrs / blade<br/><span class="text-slate-400 text-base font-normal">no special tooling on site</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== FINAL CTA + QUOTE FORM =============== -->
+<section id="quote" class="relative py-28 sm:py-36">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="cta-shell relative overflow-hidden rounded-3xl ring-1 ring-volt-400/20 bg-gradient-to-br from-ink-900 via-ink-900 to-ink-800 p-8 sm:p-14">
+      <div class="cta-glow"></div>
+      <div class="grid lg:grid-cols-12 gap-10 relative">
+        <div class="lg:col-span-6" data-reveal>
+          <p class="eyebrow !text-volt-400">Final step</p>
+          <h2 class="text-4xl sm:text-6xl font-semibold tracking-tight text-white leading-[1]">Protect your fleet.<br/><span class="grad-headline">Maximize uptime.</span></h2>
+          <p class="mt-6 text-slate-300/85 text-lg leading-relaxed max-w-md">Tell us your fleet, your platform, and what your storm season looks like. Our engineers will scope a retrofit and give you a real number — typically within 48 hours.</p>
+          <ul class="mt-8 space-y-2 text-slate-300">
+            <li class="flex items-center gap-3"><span class="check"></span>On-site asset assessment included</li>
+            <li class="flex items-center gap-3"><span class="check"></span>Root-cause analysis on existing 2106/2118 patterns</li>
+            <li class="flex items-center gap-3"><span class="check"></span>Phased rollout for fleets &gt; 50 units</li>
+          </ul>
+        </div>
+
+        <form class="lg:col-span-6 quote-form" data-reveal id="quote-form">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label class="field"><span>Your name</span><input type="text" name="name" required autocomplete="name"/></label>
+            <label class="field"><span>Work email</span><input type="email" name="email" required autocomplete="email"/></label>
+            <label class="field sm:col-span-2"><span>Wind farm name</span><input type="text" name="farm" required/></label>
+            <label class="field"><span>Number of turbines</span><input type="number" min="1" name="count"/></label>
+            <label class="field"><span>Turbine model</span>
+              <select name="model" required>
+                <option value="">Select platform…</option>
+                <option>Siemens Gamesa SG 2.X</option>
+                <option>Siemens Gamesa SG 3.X</option>
+                <option>Siemens Gamesa SG 4.X</option>
+                <option>Other / not sure</option>
+              </select>
+            </label>
+            <label class="field sm:col-span-2"><span>Notes <span class="text-slate-500">(optional)</span></span><textarea rows="3" name="notes" placeholder="Storm pattern, current alarm log, retrofit window…"></textarea></label>
+          </div>
+          <button type="submit" class="cta-primary mt-6 w-full sm:w-auto">
+            <span class="relative z-10 flex items-center gap-2 font-semibold">Request quote
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </span>
+          </button>
+          <div id="quote-success" class="mt-4 text-volt-400 text-sm hidden">✓ Request received. An engineer will reach out within 48 hours.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="relative py-12 border-t border-white/5">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8 flex flex-wrap items-center justify-between gap-4 text-sm text-slate-500">
+    <div class="flex items-center gap-3">
+      <span class="inline-grid place-items-center w-7 h-7 rounded-md bg-ink-800 ring-1 ring-white/10">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 text-bolt-400" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+      </span>
+      <span>SLPS · AP Renewables · © 2026</span>
+    </div>
+    <div class="font-mono text-xs">D0093R · D0170 · IEC 61400-24</div>
+  </div>
+</footer>
+
+<!-- audio: subtle thunder (muted by default; toggled via UI) -->
+<button id="sound-toggle" class="sound-toggle" aria-label="Toggle ambient sound" title="Toggle ambient thunder">
+  <svg id="sound-on-ico" viewBox="0 0 24 24" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg>
+  <svg id="sound-off-ico" viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6M16 9l6 6"/></svg>
+</button>
+
+<script type="module" src="assets/js/main.js?v=2"></script>
+</body>
+</html>
