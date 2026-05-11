@@ -21,13 +21,13 @@
         },
         colors: {
           ink: { 950: '#04070a', 900: '#070b10', 800: '#0c1218', 700: '#121a22' },
-          volt: { 50: '#e8fff7', 100: '#c0ffe9', 300: '#5cf2c4', 400: '#2ae3a8', 500: '#10cf90', 600: '#0aa978', DEFAULT: '#10cf90' },
-          arc:  { 300: '#9ed8ff', 400: '#5fb8ff', 500: '#3a9bff' },
-          bolt: { 300: '#ffe27a', 400: '#ffc933', 500: '#ffb000' },
+          volt: { 50: '#ecf6f1', 100: '#cfe9da', 300: '#7ad1a7', 400: '#7ad1a7', 500: '#19af70', 600: '#0e7a4f', DEFAULT: '#19af70' },
+          arc:  { 300: '#cfe9da', 400: '#7ad1a7', 500: '#08555b' },
+          bolt: { 300: '#ffe680', 400: '#fdc500', 500: '#e0a800' },
         },
         boxShadow: {
-          'glow-volt': '0 0 0 1px rgba(46,227,168,.25), 0 10px 40px -10px rgba(46,227,168,.45)',
-          'glow-bolt': '0 0 0 1px rgba(255,201,51,.3), 0 10px 60px -5px rgba(255,201,51,.45)',
+          'glow-volt': '0 0 0 1px rgba(122,209,167,.25), 0 10px 40px -10px rgba(122,209,167,.45)',
+          'glow-bolt': '0 0 0 1px rgba(253,197,0,.3), 0 10px 60px -5px rgba(253,197,0,.45)',
           'inset-line': 'inset 0 1px 0 rgba(255,255,255,.06), inset 0 -1px 0 rgba(0,0,0,.4)',
         },
         animation: {
@@ -64,7 +64,7 @@
 
 <!-- AMBIENT BACKDROP : sits behind every section -->
 <div aria-hidden="true" class="fixed inset-0 -z-50 pointer-events-none">
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_-10%,rgba(16,207,144,.18),transparent_45%),radial-gradient(circle_at_85%_30%,rgba(95,184,255,.10),transparent_50%),radial-gradient(circle_at_50%_120%,rgba(16,207,144,.08),transparent_60%)]"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_-10%,rgba(25,175,112,.18),transparent_45%),radial-gradient(circle_at_85%_30%,rgba(122,209,167,.10),transparent_50%),radial-gradient(circle_at_50%_120%,rgba(25,175,112,.08),transparent_60%)]"></div>
   <div class="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%22.9%22 numOctaves=%222%22 stitchTiles=%22stitch%22/><feColorMatrix values=%220 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/></svg>')] opacity-[.55] mix-blend-overlay"></div>
   <div class="absolute inset-0 grid-overlay opacity-[.18]"></div>
 </div>
@@ -79,7 +79,7 @@
       <a href="#top" class="flex items-center gap-3 group">
         <span class="relative inline-grid place-items-center w-9 h-9 rounded-xl bg-ink-800/80 ring-1 ring-white/10 overflow-hidden">
           <span class="absolute inset-0 bg-gradient-to-br from-volt-400/30 to-arc-500/20"></span>
-          <svg viewBox="0 0 24 24" class="relative w-5 h-5 text-bolt-400 drop-shadow-[0_0_8px_rgba(255,201,51,.7)]" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+          <svg viewBox="0 0 24 24" class="relative w-5 h-5 text-bolt-400 drop-shadow-[0_0_8px_rgba(253,197,0,.7)]" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
         </span>
         <span class="font-semibold tracking-tight text-white">SLPS<span class="text-volt-400">.</span></span>
         <span class="hidden sm:inline text-xs text-slate-400 font-mono">by AP Renewables</span>
@@ -330,7 +330,7 @@
           <span class="text-volt-400/80 mb-3 ml-1 text-sm">↑</span>
         </div>
         <p class="mt-2 text-slate-400 text-sm">Operator-reported uplift after retrofit, averaged across SG 2.0–3.X platforms.</p>
-        <div class="mt-6 h-24"><svg viewBox="0 0 240 80" class="w-full h-full"><path d="M0,65 Q40,55 60,52 T120,40 T200,22 T240,12" stroke="url(#gv)" stroke-width="2" fill="none" stroke-linecap="round"/><defs><linearGradient id="gv" x1="0" x2="1"><stop offset="0" stop-color="#10cf90" stop-opacity=".3"/><stop offset="1" stop-color="#10cf90"/></linearGradient></defs></svg></div>
+        <div class="mt-6 h-24"><svg viewBox="0 0 240 80" class="w-full h-full"><path d="M0,65 Q40,55 60,52 T120,40 T200,22 T240,12" stroke="url(#gv)" stroke-width="2" fill="none" stroke-linecap="round"/><defs><linearGradient id="gv" x1="0" x2="1"><stop offset="0" stop-color="#19af70" stop-opacity=".3"/><stop offset="1" stop-color="#19af70"/></linearGradient></defs></svg></div>
       </div>
 
       <div class="stat-card group" data-reveal>
