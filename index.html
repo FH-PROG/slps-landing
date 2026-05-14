@@ -498,6 +498,12 @@
 (function(){
   if (window.self === window.top) return;
   document.documentElement.classList.add('is-embedded');
+  var initialVh = window.innerHeight;
+  var hero = document.getElementById('top');
+  if (hero) {
+    hero.style.minHeight = initialVh + 'px';
+    hero.style.height = initialVh + 'px';
+  }
   var lastH = 0;
   function postHeight(){
     var h = Math.max(
