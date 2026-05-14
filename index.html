@@ -503,6 +503,11 @@
   if (hero) {
     hero.style.minHeight = initialVh + 'px';
     hero.style.height = initialVh + 'px';
+    var heroInner = hero.querySelector('.relative.z-10');
+    if (heroInner) {
+      heroInner.style.minHeight = initialVh + 'px';
+      heroInner.style.height = initialVh + 'px';
+    }
   }
   var lastH = 0;
   function postHeight(){
