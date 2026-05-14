@@ -443,6 +443,7 @@ body { font-family: "Space Grotesk", system-ui, sans-serif; overflow-x: clip; }
 
 /* ---------- reveal animations (gsap targets these) ---------- */
 [data-reveal] { opacity: 0; transform: translateY(28px); will-change: transform, opacity; }
+html.is-embedded [data-reveal] { opacity: 1 !important; transform: none !important; }
 
 /* ---------- mobile tweaks ---------- */
 @media (max-width: 640px) {

@@ -497,6 +497,7 @@
 <script>
 (function(){
   if (window.self === window.top) return;
+  document.documentElement.classList.add('is-embedded');
   var lastH = 0;
   function postHeight(){
     var h = Math.max(
