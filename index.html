@@ -493,5 +493,29 @@
 </button>
 
 <script type="module" src="assets/js/main.js?v=2"></script>
+
+<script>
+(function(){
+  if (window.self === window.top) return;
+  var lastH = 0;
+  function postHeight(){
+    var h = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight
+    );
+    if (h !== lastH) {
+      lastH = h;
+      window.parent.postMessage({ slpsHeight: h }, '*');
+    }
+  }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
+  if (window.ResizeObserver) {
+    new ResizeObserver(postHeight).observe(document.body);
+  } else {
+    setInterval(postHeight, 500);
+  }
+})();
+</script>
 </body>
 </html>
